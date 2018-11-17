@@ -35,6 +35,13 @@ app.post('/orders', function (req, res) {
   res.end();
 });
 
+app.get('/orders', function (req, res) {
+  const orders = Order.find({}).then(function (data) {
+    res.send({data:data});
+    res.end();
+  });
+});
+
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!');
 });
