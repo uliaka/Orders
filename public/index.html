@@ -1,15 +1,32 @@
 <html>
   <head></head>
+
+    <script>
+      window.onload = function () {
+        fetch('http://localhost:3000/orders')
+        .then(function(res){
+          return res.json();
+        }) 
+        .then(function(res) {
+          res.data.forEach(function (el) {
+            const str = "title: " + el.title + ' price: ' + el.price;
+            var h = document.createElement("H4")                // Create a <h1> element
+            var t = document.createTextNode(str);     // Create a text node
+            h.appendChild(t);                           
+            document.body.appendChild(h);
+          });
+        })
+      }
+       
+    </script>
   <body>
     <h1> Home page </h1>
-    
-  <form action="/orders" method="post" target="_blank">
-    Tittle:<br>
-    <input type="text" name="title"><br>
-    price:<br>
-    <input type="text" name="price"><br><br>
-    <input type="submit" value="Submit">
-  </form>
-
+    <form action="/orders" method="post" target="_blank">
+      Tittle:<br>
+      <input type="text" name="title"><br>
+      price:<br>
+      <input type="text" name="price"><br><br>
+      <input type="submit" value="Submit">
+    </form>
   </body>
 </html>
