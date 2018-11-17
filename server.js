@@ -25,11 +25,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', function (req, res) {
   res.sendFile('public/index.html');
+  res.end();
 });
 
 app.post('/orders', function (req, res) {
   const newOrder = new Order({ title: req.body.title, price: req.body.price });
   newOrder.save();
+  res.sendFile(__dirname + '/index.html');
+  res.end();
 });
 
 app.listen(3000, function () {
