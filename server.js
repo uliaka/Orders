@@ -12,6 +12,7 @@ const session = require('express-session')
 mongoose.connect('mongodb://localhost:27017/test');
 
 const Order = require('./server/models/order');
+const User = require('./server/models/user');
 
 const db = mongoose.connection;
 db.on('error', function(err) {
@@ -35,17 +36,23 @@ app.use(passport.session());
 
 passport.use(new Strategy(
   function(username, password, done) {
-    if (username !== 'michaelost') {
-     return done(null, false);
+    try {
+      User.findOne({ username }).exec((err, data) => {
+        if (data) {
+          return done(null, data);
+        } else {
+          return done(null, false);
+        }
+      })
+    } catch(err) {
+      
     }
-
-     return done(null, {});
   }
 ));
 
 app.get('/', function (req, res) {
   res.sendFile('public/index.html');
-  res.end();
+//  res.end();
 });
 
 app.post('/orders',  function (req, res) {
