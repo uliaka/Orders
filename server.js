@@ -45,7 +45,7 @@ passport.use(new Strategy(
         }
       })
     } catch(err) {
-      
+
     }
   }
 ));
@@ -85,6 +85,32 @@ app.post('/login', passport.authenticate('local', passportConfig), function (req
   res.json({opa: 5})
 
 });
+
+app.get('/users', function (req, res) {
+  const users = User.find({}).then(function (data) {
+    res.send({data:data});
+    res.end();
+  });
+});
+
+
+app.post('/register', function(req, res) {
+  const { username, password } = req.body;
+  User.find({ username }, function (err, docs) {
+    if (!docs.length) {
+      var newUser = new User({ username, password });
+      newUser.save(function (err) {
+        if (err) {
+          return res.json({ message: 'That username already exists.' });
+        }
+        res.json({ message: 'Successfully created new user.' });
+      });
+    } else {
+      return res.json({ message: 'That username already exists.' });
+    }
+  });
+});
+
 
 
 app.listen(3000, function () {
