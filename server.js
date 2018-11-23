@@ -63,12 +63,19 @@ app.post('/orders',  function (req, res) {
 });
 
 app.get('/orders', function (req, res) {
-  const orders = Order.find({}).then(function (data) {
+  const query = req.query ? req.query : {};
+  const orders = Order.find(query).then(function (data) {
     res.send({data:data});
     res.end();
   });
 });
 
+app.get('/orders/:_id', function (req, res) {
+  const orders = Order.findById({ _id: req.params._id }).exec(function (err, data) {
+    res.send({data:data});
+    res.end();
+  });
+});
 
 
 app.get('/login', function (req, res) {
