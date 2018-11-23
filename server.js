@@ -6,13 +6,16 @@ const flash = require('connect-flash');
 
 const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
-
 const session = require('express-session')
 
 mongoose.connect('mongodb://localhost:27017/test');
-
+// models
 const Order = require('./server/models/order');
 const User = require('./server/models/user');
+
+//orders
+const ordersRouter = require('./server/routers/orders');
+
 
 const db = mongoose.connection;
 db.on('error', function(err) {
@@ -33,6 +36,9 @@ app.use(flash())
 app.use(session({ secret: 'keyboard cat' }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+
+app.use('/orders', ordersRouter);
 
 passport.use(new Strategy(
   function(username, password, done) {
@@ -55,27 +61,6 @@ app.get('/', function (req, res) {
 //  res.end();
 });
 
-app.post('/orders',  function (req, res) {
-  const newOrder = new Order({ title: req.body.title, price: req.body.price });
-  newOrder.save();
-  res.sendFile(__dirname + '/index.html');
-  res.end();
-});
-
-app.get('/orders', function (req, res) {
-  const query = req.query ? req.query : {};
-  const orders = Order.find(query).then(function (data) {
-    res.send({data:data});
-    res.end();
-  });
-});
-
-app.get('/orders/:_id', function (req, res) {
-  const orders = Order.findById({ _id: req.params._id }).exec(function (err, data) {
-    res.send({data:data});
-    res.end();
-  });
-});
 
 
 app.get('/login', function (req, res) {
