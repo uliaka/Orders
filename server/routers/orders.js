@@ -3,6 +3,18 @@ const ordersRouter = express.Router();
 
 const Order = require('../models/order');
 
+
+ordersRouter.use('/:_id', function (req, res, next) {
+  Order.findById({ _id: req.params._id }).exec(function (err, data) {
+    if (err) {
+      res.status(400).send('order not found!');
+    } else {
+      req.order = data;
+      next();
+    }
+  });
+})
+
 ordersRouter.post('/',  function (req, res) {
   const newOrder = new Order({ title: req.body.title, price: req.body.price });
   newOrder.save();
@@ -19,17 +31,13 @@ ordersRouter.get('/', function (req, res) {
 });
 
 ordersRouter.get('/:_id', function (req, res) {
-  const orders = Order.findById({ _id: req.params._id }).exec(function (err, data) {
-    res.send({data:data});
+    const order = req.order;
+    res.send({order:order});
     res.end();
-  });
 });
 
 ordersRouter.put('/:_id', function (req, res) {
-  const orders = Order.findById({ _id: req.params._id }).exec(function (err, order) {
-    if (err) {
-      res.send({err:err})
-    }
+    const order = req.order;
     const title = req.query.title;
     if (title) {
       order.title = title;
@@ -44,7 +52,6 @@ ordersRouter.put('/:_id', function (req, res) {
       res.send({order:order});
       res.end();
     }
-  });
 });
 
 module.exports = ordersRouter;
