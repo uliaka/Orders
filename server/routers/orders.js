@@ -25,4 +25,26 @@ ordersRouter.get('/:_id', function (req, res) {
   });
 });
 
+ordersRouter.put('/:_id', function (req, res) {
+  const orders = Order.findById({ _id: req.params._id }).exec(function (err, order) {
+    if (err) {
+      res.send({err:err})
+    }
+    const title = req.query.title;
+    if (title) {
+      order.title = title;
+      order.save(function (err, resultOrder){
+        if (err) {
+          res.send({err:err});
+          res.end();
+        }
+        res.send({resultOrder:resultOrder});
+      });
+    } else {
+      res.send({order:order});
+      res.end();
+    }
+  });
+});
+
 module.exports = ordersRouter;
