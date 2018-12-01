@@ -13,9 +13,14 @@ function ordersController(Order) {
   }
 
   function ordersPost (req, res) {
-    const newOrder = new Order({ title: req.body.title, price: req.body.price });
+    const { title, price } = req.body;
+    if (!title || !price) {
+      res.send({ success: false, message: 'missing title or price' })
+      return;
+    }
+    const newOrder = new Order({ title, price });
     newOrder.save();
-    res.sendFile(process.env.PWD + '/public/index.html');
+    res.send({success: true });
   }
 
 
