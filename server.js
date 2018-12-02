@@ -12,10 +12,11 @@ mongoose.connect('mongodb://localhost:27017/test');
 // models
 const Order = require('./server/models/order');
 const User = require('./server/models/user');
-
+const Category = require('./server/models/category')
+const Product = require('./server/models/product')
 //orders
 const ordersRouter = require('./server/routers/orders');
-
+const categoriesRouter = require('./server/routers/categories')
 
 const db = mongoose.connection;
 db.on('error', function(err) {
@@ -39,6 +40,7 @@ app.use(passport.session());
 
 
 app.use('/orders', ordersRouter);
+app.use('/categories', categoriesRouter);
 
 passport.use(new Strategy(
   function(username, password, done) {
