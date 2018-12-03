@@ -17,6 +17,7 @@ const Product = require('./server/models/product')
 //orders
 const ordersRouter = require('./server/routers/orders');
 const categoriesRouter = require('./server/routers/categories')
+const productsRouter = require('./server/routers/products')
 
 const db = mongoose.connection;
 db.on('error', function(err) {
@@ -41,6 +42,7 @@ app.use(passport.session());
 
 app.use('/orders', ordersRouter);
 app.use('/categories', categoriesRouter);
+app.use('/products', productsRouter);
 
 passport.use(new Strategy(
   function(username, password, done) {
