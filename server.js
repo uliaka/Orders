@@ -7,6 +7,7 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const session = require('express-session')
+const md5 = require('md5');
 
 mongoose.connect('mongodb://localhost:27017/test');
 // models
@@ -48,14 +49,16 @@ passport.use(new Strategy(
   function(username, password, done) {
     try {
       User.findOne({ username }).exec((err, data) => {
-        if (data) {
+        const hashPassword = md5(password);
+        const user = data;
+        if (!err && hashPassword == user.password){
           return done(null, data);
         } else {
           return done(null, false);
         }
       })
     } catch(err) {
-
+      console.log(err)
     }
   }
 ));
@@ -63,15 +66,6 @@ passport.use(new Strategy(
 app.get('/', function (req, res) {
   res.sendFile('public/index.html');
 //  res.end();
-});
-
-
-
-app.get('/login', function (req, res) {
-  const orders = Order.find({}).then(function (data) {
-    res.send({data: 'login page'});
-    res.end();
-  });
 });
 
 const passportConfig = { session: false,  successRedirect: '/', failureRedirect: '/login' };
@@ -94,7 +88,7 @@ app.post('/register', function(req, res) {
   const { username, password } = req.body;
   User.find({ username }, function (err, docs) {
     if (!docs.length) {
-      var newUser = new User({ username, password });
+      var newUser = new User({ username, password: md5(password) });
       newUser.save(function (err) {
         if (err) {
           return res.json({ message: 'That username already exists.' });
