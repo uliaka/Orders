@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/uliaka/Orders#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "connect-flash": "^0.1.1",
     "express": "^4.16.4",
@@ -27,13 +28,15 @@
     "md5": "^2.2.1",
     "mongoose": "^5.3.12",
     "passport": "^0.4.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "supertest": "^3.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
     "chai": "^4.2.0",
     "gulp-babel": "^8.0.0",
+    "gulp-env": "^0.4.0",
     "gulp-mocha": "^6.0.0",
     "gulp-nodemon": "^2.4.2",
     "gulp-watch": "^5.0.1",

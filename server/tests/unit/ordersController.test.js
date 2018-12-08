@@ -10,7 +10,7 @@ const Order = function () {
   }
 }
 
-const ordersController = require('../controllers/ordersController')(Order);
+const ordersController = require('../../controllers/ordersController')(Order);
 
 describe('testing ordersController', function() {
   describe('#indexOf()', function() {
