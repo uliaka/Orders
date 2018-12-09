@@ -8,6 +8,7 @@ const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const session = require('express-session')
 const md5 = require('md5');
+const jwt = require('jsonwebtoken');
 
 mongoose.connect('mongodb://localhost:27017/test');
 // models
@@ -52,7 +53,10 @@ passport.use(new Strategy(
         const hashPassword = md5(password);
         const user = data;
         if (!err && hashPassword == user.password){
-          return done(null, data);
+          const secret = 'secret';
+          const token = jwt.sign(username, secret);
+          const dataWithToken = Object.assign({ token }, { username });
+          return done(null, dataWithToken);
         } else {
           return done(null, false);
         }
@@ -68,12 +72,10 @@ app.get('/', function (req, res) {
 //  res.end();
 });
 
-const passportConfig = { session: false,  successRedirect: '/', failureRedirect: '/login' };
+const passportConfig = { session: false };
 
 app.post('/login', passport.authenticate('local', passportConfig), function (req, res) {
-  console.log('login handler function')
-  res.json({opa: 5})
-
+  res.json({user: req.user});
 });
 
 app.get('/users', function (req, res) {
