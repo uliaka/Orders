@@ -10,24 +10,20 @@ const session = require('express-session')
 const md5 = require('md5');
 const jwt = require('jsonwebtoken');
 
-mongoose.connect('mongodb://localhost:27017/test');
+const config = require('./server/config');
+
+mongoose.connect(config.db);
 // models
-const Order = require('./server/models/order');
 const User = require('./server/models/user');
-const Category = require('./server/models/category')
-const Product = require('./server/models/product')
 //orders
 const ordersRouter = require('./server/routers/orders');
 const categoriesRouter = require('./server/routers/categories')
 const productsRouter = require('./server/routers/products')
 
 const db = mongoose.connection;
-db.on('error', function(err) {
-  console.log(err)
-});
-db.once('open', function() {
 
-});
+db.on('error', function(err) { console.log(err) });
+db.once('open', function() { console.log('connection with mongo...')  });
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
@@ -36,11 +32,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
 app.use(flash())
 
-
 app.use(session({ secret: 'keyboard cat' }));
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 app.use('/orders', ordersRouter);
 app.use('/categories', categoriesRouter);
@@ -105,6 +99,8 @@ app.post('/register', function(req, res) {
 
 
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+app.listen(config.port, function () {
+  console.log(`Example app listening on port ${config.port}!`);
 });
+
+module.exports = app;
