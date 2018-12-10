@@ -10,20 +10,24 @@ const session = require('express-session')
 const md5 = require('md5');
 const jwt = require('jsonwebtoken');
 
-const config = require('./server/config');
-
-mongoose.connect(config.db);
+mongoose.connect('mongodb://localhost:27017/test');
 // models
+const Order = require('./server/models/order');
 const User = require('./server/models/user');
+const Category = require('./server/models/category')
+const Product = require('./server/models/product')
 //orders
 const ordersRouter = require('./server/routers/orders');
 const categoriesRouter = require('./server/routers/categories')
 const productsRouter = require('./server/routers/products')
 
 const db = mongoose.connection;
+db.on('error', function(err) {
+  console.log(err)
+});
+db.once('open', function() {
 
-db.on('error', function(err) { console.log(err) });
-db.once('open', function() { console.log('connection with mongo...')  });
+});
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
@@ -32,9 +36,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
 app.use(flash())
 
+
 app.use(session({ secret: 'keyboard cat' }));
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 app.use('/orders', ordersRouter);
 app.use('/categories', categoriesRouter);
@@ -49,6 +55,7 @@ passport.use(new Strategy(
         if (!err && hashPassword == user.password){
           const secret = 'secret';
           const token = jwt.sign(username, secret);
+          console.log('token',token)
           const dataWithToken = Object.assign({ token }, { username });
           return done(null, dataWithToken);
         } else {
@@ -60,6 +67,29 @@ passport.use(new Strategy(
     }
   }
 ));
+
+app.use('/users', function(req, res, next) {
+  const token = req.body.token;
+  const secret = 'secret'
+  if (token) {
+    jwt.verify(token, secret, function (err, decoded) {
+      if (err) {
+          res.json({ message: 'User not authenticated', redirect: '/login'});
+        } else {
+            User.findOne({ username: decoded }).exec((err, data) => {
+              if (data) {
+                next()
+              } else {
+                res.send(err)
+               }
+         })
+      }
+  });
+  } else {
+     res.json({ message: 'Token not provided' })
+  }
+});
+
 
 app.get('/', function (req, res) {
   res.sendFile('public/index.html');
@@ -99,8 +129,6 @@ app.post('/register', function(req, res) {
 
 
 
-app.listen(config.port, function () {
-  console.log(`Example app listening on port ${config.port}!`);
+app.listen(3000, function () {
+  console.log('Example app listening on port 3000!');
 });
-
-module.exports = app;
