@@ -21,6 +21,8 @@ const ordersRouter = require('./server/routers/orders');
 const categoriesRouter = require('./server/routers/categories')
 const productsRouter = require('./server/routers/products')
 
+const verifyToken = require('./server/helpers/index')
+
 const db = mongoose.connection;
 db.on('error', function(err) {
   console.log(err)
@@ -68,27 +70,27 @@ passport.use(new Strategy(
   }
 ));
 
-app.use('/users', function(req, res, next) {
+
+const authMiddleware = function(req, res, next) {
   const token = req.body.token;
-  const secret = 'secret'
   if (token) {
-    jwt.verify(token, secret, function (err, decoded) {
-      if (err) {
-          res.json({ message: 'User not authenticated', redirect: '/login'});
-        } else {
-            User.findOne({ username: decoded }).exec((err, data) => {
-              if (data) {
-                next()
-              } else {
-                res.send(err)
-               }
-         })
-      }
-  });
+    verifyToken(token)
+      .then(function(decoded) {
+        User.findOne({ username: decoded }).exec((err, data) => {
+          if (data) {
+            next();
+          } else {
+            res.send(err)
+          }
+        })
+      })
+    .catch(function(err) {
+        res.send(err)
+    })
   } else {
-     res.json({ message: 'Token not provided' })
+    res.json({ message: 'Token not provided' })
   }
-});
+}
 
 
 app.get('/', function (req, res) {
@@ -102,7 +104,7 @@ app.post('/login', passport.authenticate('local', passportConfig), function (req
   res.json({user: req.user});
 });
 
-app.get('/users', function (req, res) {
+app.get('/users', authMiddleware, function (req, res) {
   const users = User.find({}).then(function (data) {
     res.send({data:data});
     res.end();
